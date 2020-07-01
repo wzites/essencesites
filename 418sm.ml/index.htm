@@ -1,0 +1,90 @@
+---
+version: master
+---
+<!DOCTYPE html>
+<head><title>%title%</title>
+<meta charset="utf-8"/>
+</head>
+<body>
+
+This site is served to you in a hostless manner ...
+(using the IPFS network)
+
+Please run an instance of <a href={{site.search}}=install+IPFS>IPFS</a>
+to allow full access to this <a href={{site.url}}>site</a>.
+<hr>
+
+<div id=page>searching ...<br>
+This <a href="%page_url%">page</a> is not yet located on the internet,
+(please wait until we find its <a href="%url%">content</a>)
+
+<p>contact: %email%
+</p>
+</div>
+
+<hr>
+<a href=https://{{site.ghuser}}.github.io/hostless/>open source</a>
+<a target=_new href=https://{{site.ghuser}}.github.io/hostless/LICENSE>MIT</a>
+<a href=https://github.com/{{site.ghuser}}/hostless/blob/{{page.version}}/LICENSE>LICENSE</a>.
+
+<script>
+const version = 'master';
+const raw = 'https://raw.githubusercontent.com/{{site.ghuser}}/hostless/';
+const GH = 'https://{{site.ghuser}}.github.io/hostless';
+var url = document.location.href;
+var host = document.location.host;
+var domain = document.location.hostname;
+var origin = document.location.origin;
+
+var domain_no_www = domain.replace(/www\./,'');
+var user = domain_no_www.replace(/\./g,'-');
+var email = user+'@'+domain_no_www;
+
+var url = raw + version + '/web/' + domain_no_www;
+var page_url = GH + '/web/' + domain_no_www + '/page.htm';
+console.log('url ',url);
+let head = document.getElementsByTagName('head')[0];
+    head.innerHTML = head.innerHTML.replace(/%title%/g,'hostless site ~ '+host);
+let body = document.getElementsByTagName('body')[0];
+let buf = body.innerHTML.replace(/%url%/g,url);
+    buf = buf.replace(/%page_url%/g,page_url);
+    buf = buf.replace(/%domain%/g,domain);
+    buf = buf.replace(/%origin%/g,origin);
+    buf = buf.replace(/%email%/g,email);
+    buf = buf.replace(/%url%/g,url);
+    body.innerHTML = buf;
+
+fetch(page_url)
+.then(function(resp) {
+      status = resp.status
+      console.log('status: '+status);
+      if (status = '200') {
+      resp.text().then( (page) => update(page) );
+      }
+      })
+.catch(function(error) { console.log('catch: '+error) })
+
+
+function update(content) {
+let loc = document.location.toString();
+    loc = loc.replace(/#.*/,'');
+let fragment = window.location.hash.substring(1);
+
+var page = document.getElementById('page');
+let buf = content.replace(/%domain%/g,domain);
+
+    buf = buf.replace(/%origin%/g,origin);
+    buf = buf.replace('%host%',host);
+    buf = buf.replace('%loc%',loc);
+    buf = buf.replace('%fragment%',fragment);
+    buf = buf.replace(/%email%/g,email);
+    buf = buf.replace(/%url%/g,url);
+    buf = buf.replace(/%page%/g,page_url);
+    buf = buf.replace(/\{\{DUCK\}\}/g,'https://duckduckgo.com/?q');
+
+    console.log('buf: '+buf);
+    page.innerHTML = buf;
+}
+
+</script>
+</body>
